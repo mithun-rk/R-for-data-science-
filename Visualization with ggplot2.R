@@ -261,4 +261,61 @@ ggplot(data = mpg, mapping = aes(x = displ, y = hwy)) +
 ggplot(data = mpg, mapping = aes(x = displ, y = hwy)) +
   geom_point(mapping = aes(color = drv),size = 4) +  geom_smooth(se = FALSE)
 
+# STATISTICAL TRANSFORMATION
+ggplot(data = diamonds) +
+  geom_bar(mapping = aes(x = cut)) # by default geom_bar user stat_count
+
+ggplot(data = diamonds) +
+  stat_count(mapping = aes(x = cut)) # same result if we use stat_count
+
+demo <- tribble(  ~a,      ~b,
+                  "bar_1", 20,  "bar_2", 30,  "bar_3", 40 )
+demo
+# here am changeing stat from default to identity to get the raw score from data.
+ggplot(data = demo) +
+  geom_bar( mapping = aes(x = a, y = b), stat = "identity")
+
+# we want in proportions
+ggplot(data = diamonds) +
+  geom_bar(mapping = aes(x = cut, y = ..prop.., group= 0))
+
+# if we want to display the summary stats. 
+ggplot(data = diamonds) +
+  stat_summary(mapping = aes(x = cut, y = depth),
+  fun.ymin = min,
+  fun.ymax = max,
+  fun.y = median  )
+
+## Excercise
+#1. what is the default geom associated with stat_summary()?
+# how would you re-write the previous plot to use the geom funtion
+# instead of stat_function
+?stat_summary
+# defualt geom is histogram
+ggplot(data = diamonds) +
+  geom_boxplot(mapping = aes(x = cut, y = depth),
+               fun.ymin = min,
+               fun.ymax = max,
+               fun.y = median  )
+
+# 2. What does geom_col() do? how is it different from geom_bar()
+?geom_col
+#here are two types of bar charts: geom_bar makes the height 
+# of the bar proportional to the number of cases in each group 
+#(or if the weight aethetic is supplied, the sum of the weights). 
+#If you want the heights of the bars to represent values in the 
+#data, use geom_col instead. geom_bar uses stat_count by default: 
+#it counts the number of cases at each x position. geom_col uses 
+#stat_identity: it leaves the data as is.
+
+ggplot(data = diamonds) +
+  geom_bar(mapping = aes(x = cut, y = ..prop..))
+ggplot(data = diamonds) +
+  geom_bar(    mapping = aes(x = cut, fill = color, y = ..prop..) )
+ggplot(data = diamonds) +
+  geom_bar(mapping = aes(x = cut, fill = color, y = ..prop.., 
+                         group = 1)  )
+
+
+
 
