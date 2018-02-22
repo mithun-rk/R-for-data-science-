@@ -34,3 +34,31 @@ jan1 <- filter(flights,month==1,day==1)
 # if i want to asssign and print in console 
 (dec25 <- filter(flights,month==12,day==25))# put parenthesis around everything
 
+# the following code finds all the flights that departed in 
+# november or december
+filter(flights, month ==11| month==12)
+# filter(flights, month = 11|12) wont work
+# another way is to use the pipe function
+nov_dec <- filter(flights, month %in% c(11,12))# used %in%
+
+### Excercises pending
+
+### Arrange rows with arrange()
+arrange(flights,year, month,day) #uses set of column names
+# use desc() to column in descending order
+arrange(flights,desc(arr_delay))
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
