@@ -145,6 +145,23 @@ delays <- flights %>% group_by(dest) %>% summarise(count=n(),
 ## group by then summarise then filter
 
 ## Missing values 
+# if there is any missing value in the input, the output will be 
+# missing value. However all aggregate functions have an na.rm argument.
+
+# here NA.s were on account of cancelled flights one way to deal with this is
+not_cancelled <- flights %>% 
+  filter(!is.na(dep_delay),!is.na(arr_delay))
+not_cancelled %>% group_by(year, month, day) %>%
+  summarise(mean = mean(dep_delay))
+
+
+
+
+
+
+
+
+
 
 
 
