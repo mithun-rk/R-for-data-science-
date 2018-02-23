@@ -153,20 +153,98 @@ not_cancelled <- flights %>%
   filter(!is.na(dep_delay),!is.na(arr_delay))
 not_cancelled %>% group_by(year, month, day) %>%
   summarise(mean = mean(dep_delay))
+# ! indicates a logical nagation.
+
+## Counts
+delays <- not_cancelled %>%
+  group_by(tailnum) %>% summarise(delay=mean(arr_delay))
+
+ggplot(data = delays, mapping = aes(x = delay))+ geom_freqpoly(binwidth = 10)
+
+delays <- not_cancelled %>%
+  group_by(tailnum) %>% summarise(delay=mean(arr_delay, na.rm = TRUE),
+                                  n = n())
+ggplot(data= delays,mapping = aes(x = n, y= delay)) +
+  geom_point(alpha = 1/10)
+
+# Removing outliers: i only keeping flight that have been delayed more that 25 times
+delays %>% filter(n >25) %>% ggplot(mapping = aes(x = n, y = delay))+ 
+  geom_point(alpha = 1/10)
+
+# Similar operation in another data.
+batting <- as.tibble(Lahman::Batting)
+?Batting
+batters<- batting%>% group_by(playerID)%>% 
+  summarise(ba = sum(H,na.rm = TRUE)/sum(AB, na.rm = TRUE),
+            ab = sum(AB, na.rm= TRUE))
+batters %>% filter(ab>100)%>%
+  ggplot(mapping=aes(x = ab,y = ba))+ geom_point()+geom_smooth(se=FALSE)
 
 
+## Usefull summary functon
+# measures of central location mean(x), median(x)
+not_cancelled %>% group_by(year,month,day)%>% summarise(
+  avg_delay1 = mean(arr_delay),avg_delay2=mean(arr_delay[arr_delay>0])
+)
 
+# Measures of spread
+# sc(),IQR(),mad()
+not_cancelled %>% group_by(dest) %>%
+  summarise(distance_sd=sd(distance))%>% arrange(desc(distance_sd))
 
+# measure of rank
+# min(), max(), quintile(x,0.25)
+not_cancelled %>% group_by(year,month,day)%>%
+  summarise(first = min(dep_time),
+            last = max(dep_time))
 
+# measure of position
+# first(x), nth(x,2), last(x)
 
+not_cancelled %>% group_by(year,month,day) %>%
+  summarise(first_dep = first(dep_time),
+            last_dep = last(dep_time))
 
+### Counts
+# n() takes no argument and returns the size of current group.
+# to count the number of non missing value use sum(! is.na(x))
+# to count the number of distict (unique) values use n_distinct()
+not_cancelled %>% group_by(dest) %>%
+  summarise(carriers = n_distinct(carrier)) %>%
+  arrange(desc(carriers))
 
+# simple count
+not_cancelled %>% count(dest)
+# you can provide weight to a variable and count
+not_cancelled %>% count(tailnum, wt= distance)
+# how many flight left before 5 am 
+not_cancelled %>% group_by(year,month,day) %>%
+  summarise(n_early = sum(dep_time < 500))
+# what is the propotion of flights delayed by more than an hour?
+not_cancelled %>% group_by(year,month,day) %>%
+  summarise(hour_perc = mean(arr_delay>60))
 
+## Grouping by multiple variables 
+# count of flights on a daily basis
+daily <- group_by(flights,year, month, day)
+(per_day <- summarise(daily,flights = n()))
+# count on a monthly basis
+(per_month <- summarise(per_day,flights = sum(flights)))
+# count per year basis
+(per_year<- summarise(per_month,flights = sum(flights)))
 
+# Ungrouping 
+daily %>% ungroup() %>% summarise(flights = n())
 
-
-
-
-
-
-
+# Grouped Muttates and filter
+# find the worst member of each group
+flights_sml %>% group_by(year, month, day) %>%
+  filter(rank(desc(arr_delay))<10)
+# find all bigger than a threshold 
+popular_dest <- flights %>% group_by(dest) %>%
+  filter(n()>365)
+popular_dest
+# standardise to compute per 
+popular_dest %>% filter(arr_delay >0) %>%
+  mutate(prop_delay = arr_delay/sum(arr_delay)) %>%
+  select(year:day, dest,arr_delay,prop_delay)
