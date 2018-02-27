@@ -17,3 +17,12 @@ ggplot(data=smaller, mapping = aes(x = carat)) +
 ggplot(data = smaller, mapping = aes(x = carat, color = cut))+
   geom_freqpoly(binwidth = 0.1)
 
+ggplot(data = faithful, mapping = aes(x = eruptions)) +
+  geom_histogram(binwidth = 0.25)
+
+ggplot(diamonds) +  geom_histogram(mapping = aes(x = y), binwidth = 0.5)
+
+ggplot(diamonds) +  geom_histogram(mapping = aes(x = y), binwidth = 0.5) +  coord_cartesian(ylim = c(0, 50))
+
+unusual <- diamonds %>% filter(y <3 | y>20)%>% arrange(y)
+unusual
