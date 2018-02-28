@@ -73,6 +73,79 @@ diamonds2<- diamonds %>% mutate(y = ifelse(y <3|y>20,NA,y))
 # , yes wehn the test is true, and the values of third argument 
 # no when it is false.
 
+# if there are na's ggplot will plot with an error message. 
+ggplot(data = diamonds2, mapping = aes(x =x, y=y))+ geom_point()
+# to supress the warning 
+ggplot(data = diamonds2, mapping = aes(x =x, y=y))+ 
+  geom_point(na.rm = TRUE)
+
+# 
+nycflights13::flights %>% mutate(
+  cancelled = is.na(dep_time),
+  sched_hour = sched_dep_time %/% 100,
+  sched_min = sched_dep_time %% 100,
+  sched_dep_time = sched_hour+sched_min/60
+) %>%
+ggplot(mapping = aes(sched_dep_time))+ geom_freqpoly(
+  mapping = aes(color = cancelled), binwidth = 1/4
+)
+
+# Covariation 
+# A categorical and a continous variable.
+ggplot(data = diamonds,mapping = aes(x = price))+
+  geom_freqpoly(mapping = aes(color = cut), binwidth = 500)
+# it is difficult to see the difference in the distribution
+# because overall counts differ so much. 
+
+ggplot(diamonds) + geom_bar(mapping = aes(x =cut))
+# to make comparision easier,lets use density instead on counts
+ggplot(data = diamonds, mapping = aes(x = price, y = ..density..)) +
+  geom_freqpoly(mapping = aes(color = cut), binwidth = 500)
+# seems fair diamonds have the highest average price, its kind of 
+# surprising lets check with a boxplot
+ggplot(data = diamonds, mapping = aes(x = cut, y = price))+
+  geom_boxplot()
+# in the diamond data cut has an implicit order good is better than fair
+# you may need to reorder the categories if no such implicit order is present
+ggplot(data = mpg, mapping = aes(x = class, y= hwy))+
+  geom_boxplot()
+# lets reorder by median
+ggplot(data = mpg)+
+  geom_boxplot(mapping = aes(x = reorder(class,hwy,FUN = median),
+                             y=hwy))
+
+# if we have long variable names its better to flip
+ggplot(data = mpg)+
+  geom_boxplot(mapping = aes(x = reorder(class,hwy,FUN = median),
+                             y=hwy))+ coord_flip()
+
+## Two Categorical variables
+ggplot(data = diamonds)+ geom_count(mapping = aes(x = cut,
+                                                  y= color))
+# the size of each circle in the plot displays how many observations
+# occured for each combination of values. 
+
+# Another approach
+diamonds %>% count(cut,color)
+# then visualize using geom_tile
+diamonds %>% count(color,cut) %>% 
+  ggplot(mapping = aes(x = cut, y = color))+
+  geom_tile(mapping = aes(fill = n))
+
+## Two continous variable
+# the best way is scatter plot with geom_point
+ggplot(data = diamonds, mapping = aes(x = carat, y= price))+ 
+  geom_point()
+# Scatter become less useful as dataset grows.
+# this problem can be partly fixed by using alpha aesthetic
+ggplot(data = diamonds) + geom_point(mapping = aes(x = carat,
+                y= price), alpha = 1/50)
+
+
+
+
+
+
 
 
 
