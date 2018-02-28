@@ -141,6 +141,55 @@ ggplot(data = diamonds, mapping = aes(x = carat, y= price))+
 ggplot(data = diamonds) + geom_point(mapping = aes(x = carat,
                 y= price), alpha = 1/50)
 
+# geom_hist and geom_freqpoly bins the data in one diamension mostly x axis
+# now lets bin in 2 diamension
+# geom_bin2d() & geom_hex() divide the coordinate plane into
+# 2D bins and then use a fill color to display how many points
+# fall in each bin
+ggplot(data = smaller) + geom_bin2d(mapping = aes(x = carat, y= price))
+
+install.packages("hexbin")
+ggplot(data = smaller) + geom_hex(mapping = aes(x = carat, y = price))
+
+# If you want a continous variable to act like categorical
+ggplot(data = smaller, mapping = aes(x = carat, y = price))+
+  geom_boxplot(mapping = aes(group = cut_width(carat,0.1)))
+# one way to make the width of the boxplot proportional to the 
+# number of points is varwidth = TRUE
+
+# if we want to display same number of points in each bin
+ggplot(data = smaller, mapping = aes(x = carat, y = price))+
+  geom_boxplot(mapping = aes(group = cut_number(carat,20)))
+
+## Patterns & Models
+# Patterns in data give clues about relationship
+# Question to aske
+# 1. Could this pattern be due to co-incidence?
+#2. How can you describe the relationship implied by the pattern.
+# 3. How strong is the relationship implied by the pattern.
+# 4. what other variables might effect relationship
+# 5. does relationship change for subgroups. 
+
+# Scatter plot shows pattern, longer the wait time higher eruption
+ggplot(data = faithful)+ geom_point(mapping = aes(x = eruptions,
+                                                  y = waiting))
+## Model
+# In diamonds data we found a strong relationship between price and carat
+# we fit a lm model and use the residual to find the relationship
+
+library(modelr)
+mod<- lm(log(price)~log(carat), data = diamonds)
+diamonds2<- diamonds%>%add_residuals(mod)%>%
+  mutate(resid = exp(resid))
+ggplot(data = diamonds2) + geom_point(mapping = aes(x = carat,
+                                                y = resid))
+# Once we have removed the strong relationship between carat and
+# price we can see the correct relationship between cut and price
+# relative to size. 
+
+ggplot(data = diamonds2) + geom_boxplot(mapping = aes(x = cut, y = resid))
+
+
 
 
 
