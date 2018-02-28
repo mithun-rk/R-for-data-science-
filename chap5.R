@@ -62,3 +62,17 @@ ggplot(diamonds) +  geom_histogram(mapping = aes(x = y),
 # lets us remove these unusual or outlier values 
 unusual <- diamonds %>% filter(y <3 | y>20)%>% arrange(y)
 unusual
+
+# Not at all recommended, however you can drop the entire row with
+# strange values
+diamonds2 <- diamonds %>% filter(between(y,3,20))
+# unusal values should not be silently removed, instead replaced with NA
+diamonds2<- diamonds %>% mutate(y = ifelse(y <3|y>20,NA,y))
+# ifelse has 3 arguments, the first argument test should be a logical 
+# vector. The result will contain the values of second argument
+# , yes wehn the test is true, and the values of third argument 
+# no when it is false.
+
+
+
+
